@@ -14,48 +14,90 @@
   <body class="bg-dark">
     <div class="container">
       <div class="row">
-        <div
-          class="card"
-          style="width: 100%; height: 100%; margin-top: 50px"
-        >
-        <div class="card-header" style="text-align: center">
+        <div class="card" style="width: 100%; height: 100%; margin-top: 50px">
+          <div class="card-header" style="text-align: center">
             <h1>WELCOME to House Price Predictor</h1>
-        </div>
-        <div class="card-body">
+          </div>
+          <div class="card-body">
             <form action="" method="post" accept-charset="UTF-8">
-                <div class="row">
-                    <div class="col-md-6 form-group" style="text-align: center">
-                        <label><b>Select the Location</b></label>
-                        <select class="selectpicker form-control" name="location" id="location" required="1">
-                            {% for location in locations %}
-                                <option value="{{ location }}">{{ location }}</option>
-                            {% endfor %}
-                        </select>
-                    </div>
-                    <div class="col-md-6 form-group" style="text-align: center">
-                        <label><b>Enter BHK</b></label>
-                        <input type="text" class="form-control" id="bhk" name="bhk" placeholder="Enter BHK">
-                    </div>
-                    <div class="col-md-6 form-group" style="text-align: center">
-                        <label><b>Enter Number of Bathrooms</b></label>
-                        <input type="text" class="form-control" id="bath" name="bath" placeholder="Enter Number of Bathrooms">
-                    </div>
-                    <div class="col-md-6 form-group" style="text-align: center">
-                        <label><b>Enter Square Feet</b></label>
-                        <input type="text" class="form-control" id="total_sqft" name="total_sqft" placeholder="Enter Square Feet">
-                    </div>
-                    <div class="col-md-12 form-group" style="margin-top: 20px; text-align: center">
-                        <button class="btn btn-primary form-control" onclick="send_data()">Predict Price</button>
-                    </div>
+              <div class="row">
+                <div class="col-md-6 form-group" style="text-align: center">
+                  <label><b>Select the Location</b></label>
+                  <select
+                    class="selectpicker form-control"
+                    name="location"
+                    id="location"
+                    required="1"
+                  >
+                    {% for location in locations %}
+                    <option value="{{ location }}">{{ location }}</option>
+                    {% endfor %}
+                  </select>
                 </div>
+                <div class="col-md-6 form-group" style="text-align: center">
+                  <label><b>Enter BHK</b></label>
+                  <input
+                    type="number"
+                    class="form-control"
+                    id="bhk"
+                    name="bhk"
+                    min="1"
+                    max="20"
+                    step="1"
+                    required
+                    placeholder="Enter BHK"
+                  />
+                </div>
+                <div class="col-md-6 form-group" style="text-align: center">
+                  <label><b>Enter Number of Bathrooms</b></label>
+                  <input
+                    type="number"
+                    class="form-control"
+                    id="bath"
+                    name="bath"
+                    min="1"
+                    max="20"
+                    step="1"
+                    required
+                    placeholder="Enter Number of Bathrooms"
+                  />
+                </div>
+                <div class="col-md-6 form-group" style="text-align: center">
+                  <label><b>Enter Square Feet</b></label>
+                  <input
+                    type="number"
+                    class="form-control"
+                    id="total_sqft"
+                    name="total_sqft"
+                    min="100"
+                    max="20000"
+                    step="1"
+                    required
+                    placeholder="Enter Square Feet"
+                  />
+                </div>
+                <div
+                  class="col-md-12 form-group"
+                  style="margin-top: 20px; text-align: center"
+                >
+                  <button
+                    type="button"
+                    id="predict-btn"
+                    class="btn btn-primary form-control"
+                    onclick="send_data()"
+                  >
+                    Predict Price
+                  </button>
+                </div>
+              </div>
             </form>
-            <br>
+            <br />
 
             <div class="col-md-12" style="text-align: center">
-                <h1><span id="prediction"></span></h1>
+              <h1><span id="prediction"></span></h1>
             </div>
+          </div>
         </div>
-    </div>
       </div>
     </div>
 
@@ -65,29 +107,56 @@
       crossorigin="anonymous"
     ></script>
     <script>
-        function form_handler(event) {
-            event.preventDefault(); // Don't submit the form normally
+      function send_data() {
+        var form = document.querySelector("form");
+
+        if (!form.checkValidity()) {
+          form.reportValidity();
+          return;
         }
-        function send_data() {
-            document.querySelector('form').addEventListener("submit", form_handler);
+        var bhk = parseInt(document.getElementById("bhk").value);
+        var bath = parseInt(document.getElementById("bath").value);
+        var sqft = parseInt(document.getElementById("total_sqft").value);
 
-            var fd=new FormData(document.querySelector('form'));
-
-            var xhr = new XMLHttpRequest();
-
-            xhr.open('POST', '/predict', true);
-            document.getElementById('prediction').innerText = "Wait Predicting Price...";
-
-            xhr.onreadystatechange = function(){
-                if(xhr.readyState == XMLHttpRequest.DONE){
-                    document.getElementById('prediction').innerHTML = 'Prediction: $'+xhr.responseText;
-                }
-            };
-
-            xhr.onload = function(){};
-            xhr.send(fd);
-
+        if (isNaN(bhk) || bhk < 1 || bhk > 20) {
+          alert("BHK must be between 1 and 20");
+          return;
         }
+        if (isNaN(bath) || bath < 1 || bath > 20) {
+          alert("Bathrooms must be between 1 and 20");
+          return;
+        }
+        if (isNaN(sqft) || sqft < 100 || sqft > 20000) {
+          alert("Square feet must be between 100 and 20000");
+          return;
+        }
+
+        var fd = new FormData(document.querySelector("form"));
+
+        var xhr = new XMLHttpRequest();
+
+        xhr.open("POST", "/predict", true);
+        document.getElementById("prediction").innerText =
+          "Wait Predicting Price...";
+
+        var button = document.getElementById("predict-btn");
+
+        button.disabled = true;
+        button.innerText = "Predicting...";
+
+        xhr.onreadystatechange = function () {
+          if (xhr.readyState == XMLHttpRequest.DONE) {
+            button.disabled = false;
+            button.innerText = "Predict Price";
+            document.getElementById("prediction").innerHTML =
+              xhr.status == 200
+                ? "Prediction: ₹ " + xhr.responseText
+                : "Error: " + xhr.responseText;
+          }
+        };
+
+        xhr.send(fd);
+      }
     </script>
   </body>
 </html>
