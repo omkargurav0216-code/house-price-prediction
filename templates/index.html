@@ -42,7 +42,7 @@
                     id="bhk"
                     name="bhk"
                     min="1"
-                    max="20"
+                    max="16"
                     step="1"
                     required
                     placeholder="Enter BHK"
@@ -56,7 +56,7 @@
                     id="bath"
                     name="bath"
                     min="1"
-                    max="20"
+                    max="16"
                     step="1"
                     required
                     placeholder="Enter Number of Bathrooms"
@@ -69,8 +69,8 @@
                     class="form-control"
                     id="total_sqft"
                     name="total_sqft"
-                    min="100"
-                    max="20000"
+                    min="300"
+                    max="12000"
                     step="1"
                     required
                     placeholder="Enter Square Feet"
@@ -94,7 +94,7 @@
             <br />
 
             <div class="col-md-12" style="text-align: center">
-              <h1><span id="prediction"></span></h1>
+              <div id="prediction" class="alert d-none text-center"></div>
             </div>
           </div>
         </div>
@@ -118,16 +118,16 @@
         var bath = parseInt(document.getElementById("bath").value);
         var sqft = parseInt(document.getElementById("total_sqft").value);
 
-        if (isNaN(bhk) || bhk < 1 || bhk > 20) {
-          alert("BHK must be between 1 and 20");
+        if (isNaN(bhk) || bhk < 1 || bhk > 16) {
+          alert("BHK must be between 1 and 16");
           return;
         }
-        if (isNaN(bath) || bath < 1 || bath > 20) {
-          alert("Bathrooms must be between 1 and 20");
+        if (isNaN(bath) || bath < 1 || bath > 16) {
+          alert("Bathrooms must be between 1 and 16");
           return;
         }
-        if (isNaN(sqft) || sqft < 100 || sqft > 20000) {
-          alert("Square feet must be between 100 and 20000");
+        if (isNaN(sqft) || sqft < 300 || sqft > 12000) {
+          alert("Square feet must be between 300 and 12000");
           return;
         }
 
@@ -148,10 +148,22 @@
           if (xhr.readyState == XMLHttpRequest.DONE) {
             button.disabled = false;
             button.innerText = "Predict Price";
-            document.getElementById("prediction").innerHTML =
-              xhr.status == 200
-                ? "Prediction: ₹ " + xhr.responseText
-                : "Error: " + xhr.responseText;
+            var prediction = document.getElementById("prediction");
+
+            prediction.classList.remove("d-none");
+
+            if (xhr.status == 200) {
+              prediction.className = "alert alert-success";
+
+              prediction.innerHTML =
+  '<div class="display-5 fw-bold">Estimated Price</div>' +
+  '<div class="display-4">₹ ' + xhr.responseText + '</div>';
+            } else {
+              prediction.className = "alert alert-warning";
+
+              prediction.innerHTML =
+  '<div class="h4">' + xhr.responseText + '</div>';
+            }
           }
         };
 
